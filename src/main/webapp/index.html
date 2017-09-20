@@ -1,0 +1,29 @@
+<html>
+<head>
+    <title>Web Demo</title>
+</head>
+<body>
+<p>Say <a href="hello">Hello</a></p>
+
+<form method="post" action="hello">
+    <h2>Name:</h2>
+    <input type="text" id="say-hello-text-input" name="name" />
+    <input type="submit" id="say-hello-button" value="Say Hello" />
+</form>
+<script src="dist/bundle.js"></script>
+<script>
+    var s = new Client("endp");
+
+    conn = new WebSocket('ws://localhost:@port@/battlecity-server/wsHandler');
+
+    conn.onopen = function(){
+        console.log("open");
+    };
+
+    conn.onmessage = function(event) {
+        console.log(event.data);
+    };
+    //this.onInit.bind(this);
+</script>
+</body>
+</html>
