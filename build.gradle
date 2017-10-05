@@ -20,29 +20,29 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile "org.springframework:spring-webmvc:$springVersion"
     compile "org.springframework:spring-websocket:$springVersion"
+    compile "com.fasterxml.jackson.core:jackson-core:2.8.8"
+    compile "org.apache.commons:commons-lang3:3.6"
 }
 
 gretty {
     httpPort = webAppPort
+    consoleLogEnabled = true
 }
 
-task deleteEntry(type: Delete) {
-    delete 'build/inplaceWebapp', 'index.html'
-    followSymlinks = true
+task webpackBuild(type: NpmTask) {
+    args = ['run', 'build']
 }
 
-task filter(type: Copy) {
+task webpackWatch(type: NpmTask) {
+    args = ['run', 'watch', '-- --output-path build/inplaceWebapp/dist']
+}
+
+task replaceTokens(type: Copy) {
     from 'src/main/webapp'
     into 'build/inplaceWebapp'
     filter(ReplaceTokens, tokens: [port: webAppPort.toString()])
 }
+//replaceTokens.dependsOn webpackBuild
 
-filter.dependsOn deleteEntry
-
-processResources.dependsOn filter
-
-task webpack(type: NpmTask) {
-    args = ['run', 'build']
-}
-
-processResources.dependsOn 'webpack'
+processResources.dependsOn webpackBuild
+processResources.dependsOn replaceTokens

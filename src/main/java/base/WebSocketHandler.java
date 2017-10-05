@@ -9,31 +9,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
 
 public class WebSocketHandler extends TextWebSocketHandler {
-    /*@Autowired
-    DataModel dataModel;
-
     @Autowired
-    MessageProcessor messageProcessor;*/
+    RequestProcessor requestProcessor;
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage textMessage) throws IOException {
-        //String testMessage = textMessage.getPayload();
-        session.sendMessage(textMessage);
-        //messageProcessor.processMessage(session, testMessage);
+        requestProcessor.processMessage(session, textMessage.getPayload());
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
-        System.out.println("Connected");
-        String sid = session.getId();
-        //session.sendMessage(new TextMessage(sid));
-        //messageProcessor.sendSessionData(session);
-        //dataModel.sessions.put(session.getId(), session);
+        requestProcessor.onConnect(session);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status){
-        System.out.println("remove player");
-        //dataModel.removePlayer(session.getId());
+        requestProcessor.onDisconnect(session);
     }
 }

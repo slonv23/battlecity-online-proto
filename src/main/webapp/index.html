@@ -12,18 +12,9 @@
 </form>
 <script src="dist/bundle.js"></script>
 <script>
-    var s = new Client("endp");
-
-    conn = new WebSocket('ws://localhost:@port@/battlecity-server/wsHandler');
-
-    conn.onopen = function(){
-        console.log("open");
-    };
-
-    conn.onmessage = function(event) {
-        console.log(event.data);
-    };
-    //this.onInit.bind(this);
+    GameClient.start({
+        endpoint: "ws://" + window.location.hostname + ":8080/battlecity-server/wsHandler" //93.79.11.87
+    });
 </script>
 </body>
 </html>
