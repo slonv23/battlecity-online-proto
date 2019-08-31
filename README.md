@@ -18,8 +18,11 @@ The staff with "say hello" button not working, don't touch it.
 Video demonstration https://www.loom.com/share/53048aae74384bceaab570de0dc4255e
 
 ## How to run this hell
-- Run "appRun" task of gretty plugin. It will build backend and fronted, start embeded web server and deploy app. That's it.
+Run "appRun" task of gretty plugin. It will build backend and fronted, start embeded web server and deploy app.
+That's it.
+
 ![screenshot](https://cdn1.imggmi.com/uploads/2019/8/31/0655c7f1848dada3a79afd1e9e8a6e08-full.jpg)
 
 After backend web server started you can rebuild frontend without need to restart web server. Use these tasks:
+
 ![screenshot](https://cdn1.imggmi.com/uploads/2019/8/31/09950827d48b5733db8294abee7bed0c-full.jpg)
