@@ -32,14 +32,8 @@ public class Fireball extends GameObject {
     }
 
     @Override
-    public void onIntersect(GameObject object) {
-        //synchronized (GameData.class) {
-            GameData.objectsToRemove.add(object);
-            GameData.objectsToRemove.add(this);
-            //GameData.objects.remove(object);
-            //GameData.objects.remove(this);
-        //}
-        System.out.println("ok");
-        //super.onIntersect(object);
+    public void onIntersect(GameObject object, double timeOffset, boolean impacts) {
+        GameData.objectsToRemove.add(object); // add offset ?
+        GameData.objectsToRemove.add(this);
     }
 }

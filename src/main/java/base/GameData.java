@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * More proper name is GameController
+ */
 public final class GameData {
     static Map<String, WebSocketSession> sessions = new HashMap<>();
     static public Map<String, GamePlayer> players = new HashMap<>();

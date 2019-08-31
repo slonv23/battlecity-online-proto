@@ -84,7 +84,7 @@ public class RequestProcessor {
             if(cid == SPAWN){
                 spawn(session);
 
-                System.out.println("Spawning new player...");
+                //System.out.println("Spawning new player...");
             }
             return;
         }
@@ -111,7 +111,7 @@ public class RequestProcessor {
 
             generator.writeEndObject();
             generator.close();
-            System.out.println("sending message from spawn...");
+            //System.out.println("sending message from spawn...");
             session.sendMessage(new TextMessage(outputWriter.toString()));
         } catch (IOException e){
             e.printStackTrace();

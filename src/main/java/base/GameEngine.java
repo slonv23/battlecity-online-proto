@@ -8,12 +8,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 @Component
 public class GameEngine extends Thread {
     private Thread t;
     private String threadName;
-    public static int minCalculationTimeDiff = 250;
+    public static int minCalculationTimeDiff = 100; //250; // 1000
 
     @Autowired
     Dispatcher dispatcher;
@@ -21,26 +23,8 @@ public class GameEngine extends Thread {
     GameEngine(@Value("gameLoopThread") String threadName) {
         this.threadName = threadName;
         System.out.println("Creating " +  threadName);
-
-        System.out.println("test1");
-        /* move = new ActionMove();
-        move.getClass()
-        Action<move.> stop = new ActionMove();
-        this.processAction(new ActionMove());*/
     }
 
-    /*public <T> void test(Action<T> destinationClass) {
-        T result = destinationClass.cast();
-        //this.processAction(result);
-    }
-
-    public void processAction(ActionMove action) {
-        System.out.println("process move");
-    };
-
-    public void processAction(ActionStop action) {
-        System.out.println("process stop");
-    };*/
 
     public void updateWorld(){
         //this.detectCollisions(); - it is in one loop ->
@@ -50,32 +34,26 @@ public class GameEngine extends Thread {
 
         }*/
         synchronized(GameData.class) {
-            System.out.println("---------------");
+            LinkedList<GameObject> objectToCheck = new LinkedList<>(GameData.objects);
+            //for (GameObject obj : objectToCheck) { // optimization ?
             for (GameObject obj : GameData.objects) {
-                obj.detectCollision(GameData.objects, this.minCalculationTimeDiff); // ? think of it a bit (if receive stop and then move in interval within ticks)
+                //objectToCheck.remove(i);
+                objectToCheck.poll().detectCollision(objectToCheck, this.minCalculationTimeDiff);
             }
+            //for (GameObject obj : GameData.objects) {
+            //    obj.detectCollision(GameData.objects, this.minCalculationTimeDiff); // ? think of it a bit (if receive stop and then move in interval within ticks)
+            //}
 
             for (GameObject obj : GameData.objects) {
                 obj.recalculatePos(this.minCalculationTimeDiff); // ? think of it a bit (if receive stop and then move in interval within ticks)
             }
 
             for (GamePlayer player : GameData.players.values()) {
-            /*player.incomeActions.forEach((Action action) -> {
-                action.applyAction();
-            });*/
-                //player.processedActions.clear(); #TODO
-                for (int i = 0; i < player.incomeActions.size(); i++) {
-                    // i is the index
-                    // yourArrayList.get(i) is the element
-                    Action action = player.incomeActions.remove(i);
-                    action.applyAction();
-                    player.processedActions.add(action);
-                }
+                player.processActions();
             }
 
             for (GameObject obj : GameData.objectsToRemove) {
                 GameData.objects.remove(obj);
-                //obj.detectCollisions(GameData.objects, this.minCalculationTimeDiff); // ? think of it a bit (if receive stop and then move in interval within ticks)
             }
             GameData.objectsToRemove = new ArrayList<>();
         }
@@ -96,7 +74,7 @@ public class GameEngine extends Thread {
 
             GameData.endSpawn(i);
 
-            System.out.println("Spawned");
+            // System.out.println("Spawned");
         }
     }
 

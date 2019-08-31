@@ -73,6 +73,8 @@ public class Dispatcher extends Thread {
                     generator.writeStartArray();
                     GamePlayer gamePlayer = (GamePlayer) gameObject;// incomeActions
                     for (Action action : gamePlayer.processedActions) {
+                        if(action == null)
+                            continue;
                         generator.writeStartObject();
                         generator.writeNumberField("type", action.getId());
                         generator.writeNumberField("offset", action.getInvertedOffset());

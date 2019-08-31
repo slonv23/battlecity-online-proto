@@ -1,11 +1,11 @@
 package base.environment;
 
-import base.GameData;
-import base.GameEngine;
+import base.helpers.collisiondetection.BasicCollisionDetector;
+import base.helpers.collisiondetection.CollisionDetector;
+import base.helpers.collisiondetection.CollisionInfo;
+import base.helpers.collisiondetection.SimpleCollisionDetector;
 
 import java.util.List;
-import java.util.function.Function;
-import java.lang.Math;
 
 public abstract class GameObject {
     public static final int OBJTYPE_TANK = 1;
@@ -24,8 +24,8 @@ public abstract class GameObject {
     public double yPos;
     public double vx = 0;
     public double vy = 0;
-    //public PSVector oldState = new PSVector();
-    //public PSVector state = new PSVector();
+
+    public CollisionDetector collisionDetector = new BasicCollisionDetector();
 
     public boolean intersects = false;
     public double itersectTimeOffset;
@@ -63,20 +63,17 @@ public abstract class GameObject {
     }
 
     public void detectCollision(List<GameObject> objectsToCheck, int milis) {
-
-    }
-
-    public boolean overlaps(double x1, double w1, double x2, double w2) {
-        double x11 = x1 + w1;
-        double x22 = x2 + w2;
-        return ((x2 <= x1 && x1 <= x22) || (x2 <= x11 && x11 <= x22));
+        for (GameObject objToCheck:
+             objectsToCheck) {
+            CollisionInfo collisionInfo;
+            if((collisionInfo = collisionDetector.detectCollision(this, objToCheck)) != null) {
+                this.onIntersect(objToCheck, collisionInfo.intersectionTime, collisionInfo.obj1Impact);
+                objToCheck.onIntersect(this, collisionInfo.intersectionTime, collisionInfo.obj2Impact);
+            }
+        }
     }
 
     public void recalculatePos(int milis){
-        /*if(intersects) {
-            intersects = false;
-            return;
-        }*/
         if(intersects) {
             oldXPos = xPos;
             oldYPos = yPos;
@@ -113,9 +110,6 @@ public abstract class GameObject {
                 vx = -getSpeed(); //-V;
                 break;
         }
-
-        // vx = (d % 2) * (-d + 2)
-        // vy = ((d + 1) % 2 ) * (d - 1)
     }
 
     public void stop(){
@@ -123,7 +117,13 @@ public abstract class GameObject {
         vy = 0;
     }
 
-    public void onIntersect(GameObject object) {}
+    public void onIntersect(GameObject object, double timeOffset, boolean impacts) {
+        if(impacts) {
+            intersects = true;
+            itersectTimeOffset = timeOffset;
+        }
+        //object.onIntersect(this);
+    }
 
     public abstract List<Rect> getPolygonMesh();
 

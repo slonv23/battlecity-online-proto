@@ -88,12 +88,12 @@ class Client {
                 var offset = 0;
                 if(object.type == API.objectType.tank) {
                     object.actions.forEach((element) => {
-                        if(element.type == 1) {
+                        if(element.type == 0) { //1
                             //console.log(element.data.d);
                             //newState.orientation = +element.data.d;
                             newState.vx = SETTINGS.speed * (newState.orientation % 2) * (2 - newState.orientation);
                             newState.vy = SETTINGS.speed * ((newState.orientation + 1) % 2) * (newState.orientation - 1);
-                        } else if(element.type == 2) {
+                        } else if(element.type == 1) { //2
                             newState.vx = 0;
                             newState.vy = 0;
                         }
@@ -120,13 +120,27 @@ class Client {
                             newState.vx = -0.009;
                             break;
                     }
-                    gameObj.currentState = newState;
+
+                    //gameObj.currentState = newState;
+                    gameObj.pendingStates.push({
+                        tick: msg.tick - offset,
+                        state: newState
+                    });
                 }
                 //console.log(msg.tick);
             }
 
             for(var id in objectsBuffer) {
-                delete this.gameInfo.objects[id];
+                this.gameInfo.objects[id].pendingStates.push({
+                    tick: msg.tick - offset,
+                    state: null
+                });
+                /*gameObj.pendingStates.push({
+                    tick: msg.tick - offset,
+                    state: null
+                });*/
+                console.log("delete "+id);
+                //delete this.gameInfo.objects[id];
             }
         },
         [API.msgType.playerInfo]: (msg) => {

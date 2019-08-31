@@ -12,4 +12,12 @@ public class Rect {
         this.h = h;
         this.w = w;
     }
+
+    public double getX(double originX) {
+        return originX + xOffset;
+    }
+
+    public double getY(double originY) {
+        return originY + yOffset;
+    }
 }

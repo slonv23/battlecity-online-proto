@@ -1,15 +1,13 @@
-package base.helpers;
+package base.helpers.collisiondetection;
 
-import base.GameData;
 import base.GameEngine;
 import base.environment.GameObject;
 import base.environment.Rect;
 
 import java.util.List;
-import java.util.function.Function;
 
-public class SimpleСollisionDetector implements CollisionDetector {
-    @Override
+public class SimpleCollisionDetector {//implements CollisionDetector {
+    //@Override
     public double detectCollision(GameObject obj1, GameObject obj2) {
         if ((obj1.vx * obj2.vy - obj1.vy * obj2.vx) != 0) {
             return twoDirectionDetectionAlgorithm(obj1, obj2);
@@ -75,6 +73,7 @@ public class SimpleСollisionDetector implements CollisionDetector {
         return -1;
     }
 
+    // not work
     public double twoDirectionDetectionAlgorithm(GameObject obj1, GameObject obj2) {
         double intersectionTime = 1000;
 
@@ -82,41 +81,54 @@ public class SimpleСollisionDetector implements CollisionDetector {
         // and then relative on this calc offsets ...
         double t11 = 0, t12 = 0, t21 = 0, t22 = 0;
         List<Rect> obj1Mesh = obj1.getPolygonMesh();
-        List<Rect> obj2Mesh = obj2.getPolygonMesh();
+        List<Rect> obj2Mesh = obj2.getPolygonMesh(); //this -> obj1, obj -> obj2
         for (Rect obj1Rect : obj1Mesh) {
             for (Rect obj2Rect : obj2Mesh) {
                 // ... here
-                t12 = ((this.yPos - obj.yPos) * this.vx - this.vy * (obj.xPos - this.xPos)) / (this.vx * obj.vy - this.vy * obj.vx);
+                t12 = ((obj1.yPos - obj2.yPos) * obj1.vx - obj1.vy * (obj2.xPos - obj1.xPos)) / (obj1.vx * obj2.vy - obj1.vy * obj2.vx);
 
-                if (t12 < GameEngine.minCalculationTimeDiff) {
-                    System.out.println("okey..");
+                /*if (t12 < GameEngine.minCalculationTimeDiff) {
+                    System.out.println("okey.."); // add optimization
                     System.out.println(t12);
-                }
-                if (this.vx != 0)
-                    t21 = (obj.xPos - this.xPos + obj.vx * t12) / (this.vx);
-                else
-                    t21 = (obj.yPos - this.yPos + obj.vy * t12) / (this.vy);
+                }*/
 
-                if (this.vy == 0) {
-                    t22 = rect.w / this.vx;
-                    if (this.xPos < obj.xPos) {
+                if (obj1.vx != 0)
+                    t21 = (obj2.xPos - obj1.xPos + obj2.vx * t12) / (obj1.vx);
+                else
+                    t21 = (obj2.yPos - obj1.yPos + obj2.vy * t12) / (obj1.vy);
+
+                if (obj1.vy == 0) {
+                    t22 = obj2Rect.w / obj1.vx;
+                    if (obj1.xPos < obj2.xPos) {
                         t22 = t21 + t22;
                     } else {
                         t22 = t21 - t22;
                     }
 
-                    t11 = selfRect.h / obj.vy;
-                    if (this.yPos < obj.yPos) {
+                    t11 = obj1Rect.h / obj2.vy;
+                    if (obj1.yPos < obj2.yPos) {
                         t11 = t12 - t11;
                     } else {
                         t11 = t12 + t11;
                     }
                 } else {
+                    t22 = obj1Rect.w / obj2.vx;
+                    if (obj2.xPos < obj1.xPos) {
+                        t22 = t21 + t22;
+                    } else {
+                        t22 = t21 - t22;
+                    }
 
+                    t11 = obj2Rect.h / obj1.vy;
+                    if (obj2.yPos < obj1.yPos) {
+                        t11 = t12 - t11;
+                    } else {
+                        t11 = t12 + t11;
+                    }
                 }
 
                 if ((t11 == 0) || (t12 == 0) || (t21 == 0) || (t22 == 0)) {
-                    return;
+                    continue;
                 }
 
                 double b;
@@ -157,7 +169,8 @@ public class SimpleСollisionDetector implements CollisionDetector {
                 }
 
                 if (intersectionTime < GameEngine.minCalculationTimeDiff) {
-                    System.out.println("overlaping!!!!!");
+                    //System.out.println("overlaping!!!!!");
+                    return intersectionTime;
                 }
 
 
@@ -174,7 +187,7 @@ public class SimpleСollisionDetector implements CollisionDetector {
         return ((x2 <= x1 && x1 <= x22) || (x2 <= x11 && x11 <= x22));
     }
 
-    synchronized(GameData.class) {
+    /*synchronized(GameData.class) {
         //Function<T,R> a = () -> {this::getWidth ;};
 
         List<Rect> selfPolygonMesh = this.getPolygonMesh(); // 1
@@ -341,5 +354,5 @@ public class SimpleСollisionDetector implements CollisionDetector {
                 }
             }
         }
-    }
+    }*/
 }

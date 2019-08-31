@@ -4,15 +4,12 @@ import base.GameData;
 import base.environment.GameObject;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GamePlayer extends GameObject {
-    static final int MOVE = 1;
-    static final int STOP = 2;
-    static final int FIRE = 3;
+    static final int MOVE = 0;
+    static final int STOP = 1;
+    static final int FIRE = 2;
 
     public static final double sizeX = 3;
     public static final double sizeY = 3;
@@ -25,8 +22,8 @@ public class GamePlayer extends GameObject {
 
     public String playerId;
 
-    public LinkedList<Action> incomeActions = new LinkedList<>();
-    public LinkedList<Action> processedActions = new LinkedList<>();
+    private Action[] actions = new Action[3];
+    public Action[] processedActions = new Action[3];
 
     public static int objectType = GameObject.OBJTYPE_TANK;
 
@@ -45,69 +42,60 @@ public class GamePlayer extends GameObject {
         return polygonMesh;
     }
 
+    public void processActions() {
+        Arrays.fill(processedActions, null);
+        for (int i = 0; i < this.actions.length; i++) {
+            Action action = actions[i];
+            if(action == null)
+                continue;
+            if(!action.isProcessed())
+                action.applyAction();
+            processedActions[action.getId()] = action;
+        }
+    }
+
     public void actionMove(int direction) {
-        incomeActions.add(new ActionMove(direction));
+        this.actions[STOP] = null;
+        this.actions[MOVE] = new ActionMove(direction);
     }
 
     public void actionStop() {
-        /*for (int i = 0; i < this.processedActions.size(); i++) {
-            if(this.processedActions.get(i) instanceof ActionMove) {
-                this.processedActions.remove(i);
-            }
-        }*/
-
-        incomeActions.add(new ActionStop());
+        this.actions[MOVE] = null;
+        this.actions[STOP] = new ActionStop();
     }
 
     public void actionStop(double offset) {
-        incomeActions.add(new ActionStop(offset));
+        this.actions[MOVE] = null;
+        this.actions[STOP] = new ActionStop(offset);
     }
 
     public void actionFire() {
-        incomeActions.add(new ActionFire());
+        this.actions[FIRE] = new ActionFire();
     }
 
     class ActionFire extends Action {
-        @Override
-        public void applyAction() {
-            int dx = 0;
-            int dy = 0;
-            switch(GamePlayer.this.direction) {
-                case 0:
-                    dx = 1;
-                    dy = -1;
-                    //vy = -V;
-                    break;
-                case 1:
-                    dx = 3;
-                    dy = 1;
-                    //vx = V;
-                    break;
-                case 2:
-                    dx = 1;
-                    dy = 3;
-                    //vy = V;
-                    break;
-                case 3:
-                    dx = -1;
-                    dy = 1;
-                    //vx = -V;
-                    break;
-            }
-
-            GameData.lunchFireball(GamePlayer.this.oldXPos+dx, GamePlayer.this.oldYPos+dy, GamePlayer.this.direction);
-            GamePlayer.this.processedActions.remove(this);
-        }
-
         @Override
         public int getId() {
             return GamePlayer.FIRE;
         }
 
         @Override
-        public List<Pair<String, String>> getActionData() {
-            return null;
-            //return new ArrayList<>();
+        public void applyAction() {
+            GamePlayer.this.actions[GamePlayer.FIRE] = null;
+
+            //int dx = 0;
+            //int dy = 0;
+            double dx = 0;
+            double dy = 0;
+            switch(GamePlayer.this.direction) {
+                case 0: dx = 1; dy = -1; break;
+                case 1: dx = 3; dy = 1; break;
+                case 2: dx = 1; dy = 3; break;
+                case 3: dx = -1; dy = 1; break;
+            }
+
+            //GameData.lunchFireball(GamePlayer.this.oldXPos+dx, GamePlayer.this.oldYPos+dy, GamePlayer.this.direction);
+            GameData.lunchFireball(GamePlayer.this.xPos+dx, GamePlayer.this.yPos+dy, GamePlayer.this.direction);
         }
     }
 
@@ -125,22 +113,9 @@ public class GamePlayer extends GameObject {
 
         @Override
         public void applyAction() {
-            for (int i = 0; i < GamePlayer.this.processedActions.size(); i++) {
-                Action a = GamePlayer.this.processedActions.get(i);
-                if(a instanceof ActionMove || a instanceof ActionStop) {
-                    GamePlayer.this.processedActions.remove(i);
-                }
-            }
+            super.applyAction();
 
             GamePlayer.this.move(direction);
-        }
-
-        @Override
-        public List<Pair<String, String>> getActionData() {
-            //List<Pair<String, String>> data = new ArrayList<>();
-            //data.add(Pair.of("d", String.valueOf(direction)));
-            //return data;
-            return null;
         }
     }
 
@@ -153,25 +128,15 @@ public class GamePlayer extends GameObject {
         public ActionStop() {}
 
         public ActionStop(double offset) {
-            this.offset = offset;
+            super.setOffset(offset);
+            /*this.offset = offset;*/
         }
 
         @Override
         public void applyAction() {
-            for (int i = 0; i < GamePlayer.this.processedActions.size(); i++) {
-                if(GamePlayer.this.processedActions.get(i) instanceof ActionMove) {
-                    GamePlayer.this.processedActions.remove(i);
-                }
-            }
+            GamePlayer.this.actions[GamePlayer.STOP] = null;
 
-            GamePlayer.this.processedActions.remove(this);
             GamePlayer.this.stop();
-        }
-
-        @Override
-        public List<Pair<String, String>> getActionData() {
-            return null;
-            //return new ArrayList<>();
         }
     }
 }

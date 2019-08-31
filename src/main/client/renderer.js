@@ -35,9 +35,17 @@ export class Renderer {
                 
                 //for(var id in this.gameInfo.players){
                 //       var p = this.gameInfo.players[id];
-                for(var id in this.gameInfo.objects){
+                var keys = Object.keys(this.gameInfo.objects);
+                //for(var id in this.gameInfo.objects){
+                for(var id of keys) {
                     var p = this.gameInfo.objects[id];
                     p.update(tick, delta);
+                    if(p.created == false)
+                        continue;
+                    else if(p.deleted == true) {
+                        console.log("delete2 "+id);
+                        delete this.gameInfo.objects[id];
+                    }
                     switch(p.objectType) {
                         case API.objectType.tank:
                            // p.update(tick, delta);
